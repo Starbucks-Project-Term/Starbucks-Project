@@ -1,3 +1,8 @@
+/**
+@file This is the JavaScript file for the index2.hbs view. It includes the functions with the detecting current position,
+drawing the map on the page and display both multiple and single places on it.
+*/
+
 var newmap;
 var latitude = 49.1783518;
 var longitude = -123.2760839;
@@ -5,6 +10,12 @@ var currentSB = "";
 var botMheight = 0;
 var choiceheight = 90;
 
+/**
+This functions runs functions "/getLocation" on the server. The server's function will get current location, based on the IP.
+It will initialize the initMap function and pass the cooerdinates as parametrs.
+@param {string} location
+@returns {none} 
+*/
 var getMap = (location) => {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST", "/getLocation", true);
@@ -22,6 +33,12 @@ var getMap = (location) => {
     xmlhttp.send(`location=${location}`);
 };
 
+/**
+This functions runs functions "/storeuserdata" on the server. The server's function will checks the logged in persone and
+then add the location to the list of the saved locations. It will send empty string back to the server.
+@param {none}
+@returns {none} 
+*/
 var savelocation = () => {
     if (currentSB != '') {
         var xmlhttp = new XMLHttpRequest();
@@ -39,7 +56,11 @@ var savelocation = () => {
     }
 };
 
-
+/**
+This functions runs the server function "/favdata", that will add a string of the favotires places, and sends "OK" response.
+@param {none}
+@returns {none} 
+*/
 var showfavs = () => {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST", "/favdata", true);
