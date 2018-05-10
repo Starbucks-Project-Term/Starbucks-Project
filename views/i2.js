@@ -27,7 +27,7 @@ var getMap = (location) => {
             console.log(coordinates);
             latitude = coordinates.lat;
             longitude = coordinates.long;
-            initMap(latitude, longitude, 15);
+            initMap(latitude, longitude, 18);
         }
     };
     xmlhttp.send(`location=${location}`);
@@ -73,17 +73,17 @@ var showfavs = () => {
     xmlhttp.send(`OK`);
 };
 
-/**
-This functions creates an empty map on the html page
-@param {none}
-@returns {none} 
-*/
-var defMap = () => {
-    newmap = new google.maps.Map(document.getElementById('newmap'), {
-        zoom: 7,
-        center: { lat: latitude, lng: longitude }
-    });
-}
+// /**
+// This functions creates an empty map on the html page
+// @param {none}
+// @returns {none} 
+// */
+// var defMap = () => {
+//     newmap = new google.maps.Map(document.getElementById('newmap'), {
+//         zoom: 7,
+//         center: { lat: latitude, lng: longitude }
+//     });
+// }
 
 /**
 This function initialize the empty map on the html page and place the marker on the current position
@@ -107,7 +107,7 @@ List of places is created by the fuction in the map.js file and send by thr serv
 */
 var initMultPlaceMap = () => {
     newmap = new google.maps.Map(document.getElementById('newmap'), {
-      zoom: 15,
+      zoom: 18,
       center: {lat: latitude, lng : longitude}
     });
     var places_funct = () =>{
@@ -187,8 +187,6 @@ function getLocation() {
             latitude = position.coords.latitude
             longitude = position.coords.longitude
         });
-        
-
 }};
 
 function errorMessages(number){
@@ -206,7 +204,7 @@ function errorMessages(number){
 //     document.getElementById('savedloc').style.top = '0%';
 // });
 
-defMap()
+// defMap()
 
 // document.getElementById('savecurrentloc').addEventListener("click", function () {
 //     window.alert('You have saved the location');
