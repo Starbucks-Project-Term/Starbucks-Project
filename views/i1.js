@@ -107,6 +107,8 @@ function shortusername(username){
         swal("Passwords do not match")
     } else if (username === 5){
         swal("Password needs to be at least 5 characters")
+    } else if (username === 6){
+        swal("Username may not contain spaces or special characters")
     } else if (username === 0){
         swal('Congratulations you have successfully created an account')
     }
