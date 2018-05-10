@@ -232,7 +232,6 @@ app.post('/starbucksnearme', (request,response) => {
     longitude = request.body.longitude;
     latitude = request.body.latitude;
     maps.get_sturbuckses(latitude, longitude).then((response1) => {
-        console.log(response1.list_of_places);
 })
 });
 
@@ -335,7 +334,7 @@ app.post('/favdata', (request, response) => {
 })
 
 app.get('/404', (request, response) => {
-    response.send({
+    response.send({ 
         error: 'Page not found'
     })
 })
