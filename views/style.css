@@ -129,7 +129,7 @@ form {
     transform: translateY(4px);
 }
 
-#create {
+#create, #cancelBtn {
     right:0; left:0; bottom:0;
     margin: auto;
     padding:0;
@@ -139,6 +139,10 @@ form {
     color: #777;
     transition: 0.5s;
     cursor:pointer;
+}
+
+#candelBtn {
+    opacity: 0;
 }
 
 #mainpage{
