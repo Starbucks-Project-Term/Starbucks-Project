@@ -246,6 +246,12 @@ app.post('/starbucksnearme', (request,response) => {
 app.post('/loginsearch', (request, response) => {
     place = request.body.search;
     maps.getAddress(place).then((coordinates) => {
+        displaySaved = ''
+        LoadAccfile()
+        var userdata = Accs[user_id]
+        for (var i = 0; i < userdata.saved.length; i++) {
+            displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${userdata.saved[i]})"> ${userdata.saved[i]}</a></div>`
+        }
         console.log(coordinates);
         displayText = ' '
         if (coordinates.lat && coordinates.long){
@@ -255,6 +261,7 @@ app.post('/loginsearch', (request, response) => {
                 displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response1.list_of_places[i]}\'); currentSB=\'${response1.list_of_places[i]}\'"> ${response1.list_of_places[i]}</a></div>`
             }
             response.render('index2.hbs', {
+                savedSpots: displaySaved,
                 testvar: displayText,
                 coord: `<script>latitude = ${coordinates.lat}; longitude = ${coordinates.long};initMultPlaceMap()</script>`
             })
