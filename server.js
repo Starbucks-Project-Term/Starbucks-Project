@@ -4,8 +4,9 @@ const bodyParser = require('body-parser');
 const hbs = require('hbs');
 const maps = require('./maps.js')
 const current_ip = require('./get_current_ip.js')
-
+const credentials = JSON.parse(fs.readFileSync('credentials.json'))
 const crypto = require('crypto')
+const mysql = require('mysql');
 
 var app = express();
 const port = process.env.PORT || 8080;
@@ -23,40 +24,37 @@ var current_long = ''
 var current_lat = ''
 var last_save = ""
 var user_id = '';
+var saved_loc
 /**
  * Calls the function ReadAccfile and returns the list into the variable Accs
  */
+
+var con = mysql.createConnection({
+    host: credentials.host,
+    user: credentials.user,
+    password: credentials.password,
+    database: credentials.database,
+    port: credentials.port
+});
+var Accs = []
+
 var LoadAccfile = () => {
-    Accs = ReadAccfile('accounts.json')
-};
+    return new Promise(resolve => {
+        con.query('SELECT * FROM users', function (err, res, fields) {
+            resolve(Accs = JSON.parse(JSON.stringify(res)))
 
-/**
- * Reads the file and returns the contents so its usable in node. 
- * If the file doesnt exist it will create the file with an empty list
- * @param {string} file - The file that you want to read
- */
-var ReadAccfile = (file) => {
-    try {
-        return JSON.parse(fs.readFileSync(file))
-    }
-    catch (exception) {
-        if (exception.code === 'ENOENT') {
-            fs.writeFileSync(file, '[]');
-            return JSON.parse(fs.readFileSync(file))
-        }
-        else {
-            window.alert(exception)
-        }
-    }
-};
+        })
+    })
+}
 
-/**
- * Turns the variable Accs into a string and writes it into the accounts.json file
- */
+var LoadUserdata = (user) => {
+    return new Promise(resolve =>{
+        con.query('SELECT * from UserData WHERE username = '+user, function(err, res, fields){
+            resolve(saved_loc = JSON.parse(JSON.stringify(res)))
+        })
+    })
+}
 
-var WriteAccfile = () => {
-    fs.writeFileSync('accounts.json', JSON.stringify(Accs));
-};
 
 /**
  * Reads the account file and also calls the function LoginCheck. Renders error page or index page
@@ -65,44 +63,55 @@ var WriteAccfile = () => {
  */
 
 var Login = (request, response) => {
-    var filecontents = ReadAccfile('accounts.json')
-    if (LoginCheck(request, filecontents) == 0) {
-    displaySaved = ''
-    LoadAccfile()
-    var userdata = Accs[user_id]
-    console.log(userdata.saved);
-
-    for (var i = 0; i < userdata.saved.length; i++) {
-        console.log(userdata.saved[i]);
-        displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${userdata.saved[i]})"> ${userdata.saved[i]}</a></div>`
-    }
+    LoadAccfile().then(response => {
+        if (LoginCheck(request, Accs) == 0) {
+            console.log('WOOHOO')
+            displaySaved = ''
+            var userdata = Accs[user_id]
+            console.log(userdata.saved);
     
-    current_ip.request_coodrs().then((response1) => {
-        console.log(response1);
-        maps.get_sturbuckses(response1.lat,response1.lon).then((response2) => {
-            console.log(response2.list_of_places);
-            displayText = ' '
-            for (var i = 0; i < response2.list_of_places.length; i++) {
-                displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`
+            for (var i = 0; i < userdata.saved.length; i++) {
+                console.log(userdata.saved[i]);
+                displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${userdata.saved[i]})"> ${userdata.saved[i]}</a></div>`
             }
-            response.render('index2.hbs', {
-                savedSpots: displaySaved,
-                testvar: displayText,
-                coord: `<script>latitude = ${response1.lat}; longitude = ${response1.lon};initMultPlaceMap()</script>`
+        
+        current_ip.request_coodrs().then((response1) => {
+            console.log(response1);
+            maps.get_sturbuckses(response1.lat,response1.lon).then((response2) => {
+                console.log(response2.list_of_places);
+                displayText = ' '
+                for (var i = 0; i < response2.list_of_places.length; i++) {
+                    displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`
+                }
+                response.render('index2.hbs', {
+                    savedSpots: displaySaved,
+                    testvar: displayText,
+                    coord: `<script>latitude = ${response1.lat}; longitude = ${response1.lon};initMultPlaceMap()</script>`
+                })
             })
+            // response.render('index2.hbs', {
+            //     savedSpots: displaySaved,
+            //     coord: `<script>latitude = ${response.lat}; longitude = ${response.lon};defMap()</script>`
+            // })
         })
-        // response.render('index2.hbs', {
-        //     savedSpots: displaySaved,
-        //     coord: `<script>latitude = ${response.lat}; longitude = ${response.lon};defMap()</script>`
-        // })
+    
+        }
+        else {
+            response.render('index.hbs', {
+                username: 3
+            });
+        }
+
+
+
+
+
+
+
+
+    
     })
 
-    }
-    else {
-        response.render('index.hbs', {
-            username: 3
-        });
-    }
 };
 
 /**
@@ -113,9 +122,9 @@ var Login = (request, response) => {
 
 var LoginCheck = (request, accs) => {
     hashing_password = hash_data(request.body.password)
-
     for (i = 0; i < accs.length; i++) {
-        if ((request.body.username == accs[i].user) && (hashing_password == accs[i].pass)) {
+        //console.log(accs[i].username, request.body.username)
+        if ((request.body.username == accs[i].username) && (hashing_password == accs[i].pass)) {
             console.log("User pass is ", accs[i].pass);
         	logged_in = accs[i]
             user_id = i
@@ -139,8 +148,10 @@ var AddUsr = (request, response) => {
             'pass': hash_password,
             'saved': []
         }
-        Accs.push(acc)
-        WriteAccfile()
+        con.query("INSERT INTO users (username, pass) values ('"+acc.user+"','"+acc.pass+"')", function(err, res, fields){
+            console.log(err)
+        })
+        
 		response.render('index.hbs', {
             username:0
         });
@@ -162,7 +173,7 @@ var UserNameCheck = (request, response, Accs) => {
         if (request.body.NewUser.length <= 12 && request.body.NewUser.length >= 3 ) {
             for (i = 0; i < Accs.length; i++) {
                 //console.log(Accs[i].user)
-                if (request.body.NewUser == Accs[i].user) {
+                if (request.body.NewUser == Accs[i].username) {
                     response.render('index.hbs', {
                         username:2
                     });
@@ -179,7 +190,7 @@ var UserNameCheck = (request, response, Accs) => {
     response.render('index.hbs', {
         username: 6
     });
-    return 3
+    return 1
 };
 
 

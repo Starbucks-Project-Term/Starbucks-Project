@@ -1,5 +1,5 @@
 var testFunc = require("./server")
-var Accs = [{ "user": "jason", "pass": "2b877b4b825b48a9a0950dd5bd1f264d", "saved": ["600 Dunsmuir Street, Vancouver", "80 Pine St, New York", "885 Dunsmuir St, Vancouver", "600 Dunsmuir Street, Vancouver", "720 Granville St, Vancouver", "398 Robson St Unit #5, Vancouver", "811 Hornby St, Vancouver"] }]
+var Accs = [{ "username": "jason", "pass": "2b877b4b825b48a9a0950dd5bd1f264d", "saved": ["600 Dunsmuir Street, Vancouver", "80 Pine St, New York", "885 Dunsmuir St, Vancouver", "600 Dunsmuir Street, Vancouver", "720 Granville St, Vancouver", "398 Robson St Unit #5, Vancouver", "811 Hornby St, Vancouver"] }]
 
 var success = {
     body: {
