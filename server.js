@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const hbs = require('hbs');
 const maps = require('./maps.js')
 const current_ip = require('./get_current_ip.js')
-const credentials = JSON.parse(fs.readFileSync('credentials.json'))
+const credentials = JSON.parse(fs.readFileSync('./credentials.json'))
 const crypto = require('crypto')
 const mysql = require('mysql');
 
@@ -396,12 +396,15 @@ app.get('/404', (request, response) => {
     })
 })
 
-app.listen(port, () => {
+
+var server = app.listen(port, () => {
     console.log('Server is up on the port 8080');
 });
+
 
 module.exports = {
     UserNameCheck,
     PasswordCheck,
-    LoginCheck
+    LoginCheck,
+    server
 }

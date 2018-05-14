@@ -17,10 +17,14 @@
             <div id='newmap'></div>
         </div>
     </form>
-    <input type="submit" value="Go back to Search" id='Searchlocation'>
-
-    <input type="submit" onclick="showfavs()" value="Favorites" id='savedlocations'>
-    <!---<div id='newmap'></div> !-->
+        <ul>
+            <li>
+                <a><input type="submit" value="Back to Search" id='Searchlocation'></a>
+            </li>
+            <li>
+                <a><input type="submit" onclick="showfavs()" value="Favorites" id='savedlocations'></a>
+            </li>
+        </ul>
     <div id="nearme">
         <div id="searchbox">
             <form action='/loginsearch' method='post'>
