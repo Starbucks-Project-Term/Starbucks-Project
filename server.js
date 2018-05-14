@@ -396,12 +396,15 @@ app.get('/404', (request, response) => {
     })
 })
 
-app.listen(port, () => {
+
+var server = app.listen(port, () => {
     console.log('Server is up on the port 8080');
 });
+
 
 module.exports = {
     UserNameCheck,
     PasswordCheck,
-    LoginCheck
+    LoginCheck,
+    server
 }

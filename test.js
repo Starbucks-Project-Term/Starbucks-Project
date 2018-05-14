@@ -104,3 +104,5 @@ describe('registerPassword', () => {
         expect(testFunc.PasswordCheck(fail2, response)).toBe(2)
     })
 })
+
+testFunc.server.close();
