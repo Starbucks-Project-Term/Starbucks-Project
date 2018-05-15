@@ -280,7 +280,7 @@ app.set('view engine', 'hbs');
 
 app.get('/', (request, response) => {
     response.render('index.hbs');
-    send_mail()
+    //send_mail()
 });
 
 app.get('/map', (request, response) => {
