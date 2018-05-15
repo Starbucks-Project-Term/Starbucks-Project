@@ -7,6 +7,8 @@ const current_ip = require('./get_current_ip.js')
 const credentials = JSON.parse(fs.readFileSync('./credentials.json'))
 const crypto = require('crypto')
 const mysql = require('mysql');
+const nodemailer = require('nodemailer');
+const email = require('./send_email.js')
 
 var app = express();
 const port = process.env.PORT || 8080;
@@ -37,6 +39,32 @@ var con = mysql.createConnection({
     port: credentials.port
 });
 var Accs = []
+
+var send_mail = () => {   
+    options = email.mailOptions
+    options.to = 'viktor.sheverdin@gmail.com'
+    options.subject = 'Test email from Sb app'
+    options.text = 'OK! It actually works!'
+    console.log(options);
+    email.send_email(options);
+
+    // email.transporter.sendEmail(options, (error,info) => {
+    //     if (error) {
+    //         console.log(error);
+    //     }
+    //     else {
+    //         console.log('Email sent: ', info.response);
+    //     }
+    // });
+}
+
+// transporter.sendMail(mailOptions, function(error, info){
+//   if (error) {
+//     console.log(error);
+//   } else {
+//     console.log('Email sent: ' + info.response);
+//   }
+// });
 
 var LoadAccfile = () => {
     return new Promise(resolve => {
@@ -252,6 +280,7 @@ app.set('view engine', 'hbs');
 
 app.get('/', (request, response) => {
     response.render('index.hbs');
+    send_mail()
 });
 
 app.get('/map', (request, response) => {
