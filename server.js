@@ -170,7 +170,7 @@ var LoginCheck = (request, accs) => {
                 logged_in = accs[i];
                 user_id = i;
                 resolve(0);
-            }
+            };
         };
         reject(1);
     });
@@ -343,10 +343,10 @@ app.post('/loginsearch', (request, response) => {
         } else {
             response.render('index2.hbs', {
                 error: 1
-            })
+            });
 
         }
-    })
+    });
 });
 /**
  * gets the longitude and latitude of the location that you enter in
@@ -408,20 +408,20 @@ app.post('/favdata', (request, response) => {
                     savedSpots: displaySaved,
                     testvar: displayText,
                     coord: `<script>latitude = ${response1.lat}; longitude = ${response1.lon};initMultPlaceMap()</script>`
-                })
-            })
+                });
+            });
             // response.render('index2.hbs', {
             //     savedSpots: displaySaved,
             //     coord: `<script>latitude = ${response.lat}; longitude = ${response.lon};defMap()</script>`
             // })
-        })
-    })
+        });
+    });
 });
 
 app.get('/404', (request, response) => {
     response.send({
         error: 'Page not found'
-    })
+    });
 });
 
 
