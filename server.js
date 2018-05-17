@@ -21,12 +21,12 @@ app.use(bodyParser.urlencoded({
 
 var Accs = [];
 var place = '';
-var logged_in = ""
-var current_long = ''
-var current_lat = ''
-var last_save = ""
+var logged_in = "";
+var current_long = '';
+var current_lat = '';
+var last_save = "";
 var user_id = '';
-var saved_loc
+var saved_loc;
 /**
  * Calls the function ReadAccfile and returns the list into the variable Accs
  */
@@ -55,7 +55,7 @@ var send_mail = () => {
     //         console.log('Email sent: ', info.response);
     //     }
     // });
-}
+};
 
 // transporter.sendMail(mailOptions, function(error, info){
 //   if (error) {
@@ -70,9 +70,9 @@ var LoadAccfile = () => {
         con.query('SELECT * FROM users', function (err, res, fields) {
             resolve(Accs = JSON.parse(JSON.stringify(res)));
 
-        })
-    })
-}
+        });
+    });
+};
 
 var loadUserdata = (user) => {
     return new Promise(resolve => {
@@ -80,9 +80,9 @@ var loadUserdata = (user) => {
         con.query("SELECT * from UserData WHERE username = '" + user + "'", function (err, res, fields) {
             //console.log(res)
             resolve(saved_loc = JSON.parse(JSON.stringify(res)));
-        })
-    })
-}
+        });
+    });
+};
 
 var checkLocations = (user, location) => {
     return new Promise(function (resolve, reject) {
@@ -96,14 +96,14 @@ var checkLocations = (user, location) => {
 
                 reject();
             }
-        })
+        });
 
-    })
-}
+    });
+};
 
 var addLocations = (user, location) => {
     con.query("INSERT INTO UserData (username, location_id) values ('" + user + "','" + location + "')");
-}
+};
 
 /**
  * Reads the account file and also calls the function LoginCheck. Renders error page or index page
@@ -149,9 +149,9 @@ var Login = (request, response) => {
                     username: 3
                 });
             }
-        )
+        );
     });
-}
+};
 
 /**
  * Verifies that the username and password exist in the accs arg.
@@ -169,11 +169,11 @@ var LoginCheck = (request, accs) => {
                 console.log("User pass is ", accs[i].pass);
                 logged_in = accs[i];
                 user_id = i;
-                resolve(0);
+                resolve(0)
             }
         };
-        reject(1);
-    })
+        reject(1)
+    });
 
 };
 
