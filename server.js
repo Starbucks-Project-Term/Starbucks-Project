@@ -129,7 +129,7 @@ var Login = (request, response) => {
                         console.log(response2.list_of_places);
                         displayText = ' ';
                         for (var i = 0; i < response2.list_of_places.length; i++) {
-                            displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`
+                            displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`;
                         }
                         response.render('index2.hbs', {
                             savedSpots: displaySaved,
@@ -169,10 +169,10 @@ var LoginCheck = (request, accs) => {
                 console.log("User pass is ", accs[i].pass);
                 logged_in = accs[i];
                 user_id = i;
-                resolve(0)
+                resolve(0);
             }
         };
-        reject(1)
+        reject(1);
     });
 
 };
@@ -186,27 +186,27 @@ var LoginCheck = (request, accs) => {
 var AddUsr = (request, response) => {
     LoadAccfile().then(res => {
         if (UserNameCheck(request, response, Accs) == 0 && PasswordCheck(request, response) == 0) {
-            var salt = generateSalt()
+            var salt = generateSalt();
             hash_password = hash_data(request.body.NewPassword + salt);
             var acc = {
                 'user': request.body.NewUser,
                 'pass': hash_password,
-            }
+            };
             con.query("INSERT INTO users (username, pass, salt) values ('" + acc.user + "','" + acc.pass + "','" + salt + "')", function (err, res, fields) {
                 console.log(err);
                 console.log(salt);
-            })
+            });
 
             response.render('index.hbs', {
                 username: 0
             });
         }
-    })
+    });
 };
 
 var hash_data = (data) => {
     return crypto.createHash('md5').update(data).digest('hex');
-}
+};
 
 var generateSalt = () => {
     var text = "";
@@ -215,8 +215,8 @@ var generateSalt = () => {
     for (var i = 0; i < 16; i++) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
-    return text
-}
+    return text;
+};
 
 /**
  * checks if new username is already saved
@@ -233,20 +233,20 @@ var UserNameCheck = (request, response, Accs) => {
                     response.render('index.hbs', {
                         username: 2
                     });
-                    return 1
+                    return 1;
                 }
             }
-            return 0
+            return 0;
         }
         response.render('index.hbs', {
             username: 1
         });
-        return 2
+        return 2;
     }
     response.render('index.hbs', {
         username: 6
     });
-    return 1
+    return 1;
 };
 
 
@@ -262,15 +262,15 @@ var PasswordCheck = (request, response) => {
             response.render('index.hbs', {
                 username: 4
             });
-            return 1
+            return 1;
         } else {
-            return 0
+            return 0;
         }
     }
     response.render('index.hbs', {
         username: 5
     });
-    return 2
+    return 2;
 };
 
 
@@ -292,9 +292,9 @@ app.post('/login', (request, response) => {
 
 app.get('/places_funct', (request, response) => {
     var places = fs.readFileSync('places.json');
-    var parsed_places = JSON.parse(places)
-    response.end(places)
-})
+    var parsed_places = JSON.parse(places);
+    response.end(places);
+});
 
 app.post('/home', (request, response) => {
     AddUsr(request, response);
@@ -304,7 +304,7 @@ app.post('/starbucksnearme', (request, response) => {
     longitude = request.body.longitude;
     latitude = request.body.latitude;
     maps.get_sturbuckses(latitude, longitude).then((response1) => {
-    })
+    });
 });
 
 
@@ -317,29 +317,29 @@ app.post('/starbucksnearme', (request, response) => {
 app.post('/loginsearch', (request, response) => {
     place = request.body.search;
     maps.getAddress(place).then((coordinates) => {
-        displaySaved = ''
+        displaySaved = '';
         loadUserdata(logged_in.username).then(res => {
-            displaySaved = ''
-            console.log(saved_loc)
+            displaySaved = '';
+            console.log(saved_loc);
             for (var i = 0; i < saved_loc.length; i++) {
-                console.log(saved_loc[i].location_id)
-                displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`
+                console.log(saved_loc[i].location_id);
+                displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
             }
-        })
+        });
         console.log(coordinates);
-        displayText = ' '
+        displayText = ' ';
         if (coordinates.lat && coordinates.long) {
             maps.get_sturbuckses(coordinates.lat, coordinates.long).then((response1) => {
                 console.log(response1.list_of_places);
                 for (var i = 0; i < response1.list_of_places.length; i++) {
-                    displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response1.list_of_places[i]}\'); currentSB=\'${response1.list_of_places[i]}\'"> ${response1.list_of_places[i]}</a></div>`
+                    displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response1.list_of_places[i]}\'); currentSB=\'${response1.list_of_places[i]}\'"> ${response1.list_of_places[i]}</a></div>`;
                 }
                 response.render('index2.hbs', {
                     savedSpots: displaySaved,
                     testvar: displayText,
                     coord: `<script>latitude = ${coordinates.lat}; longitude = ${coordinates.long};initMultPlaceMap()</script>`
-                })
-            })
+                });
+            });
         } else {
             response.render('index2.hbs', {
                 error: 1
@@ -347,19 +347,19 @@ app.post('/loginsearch', (request, response) => {
 
         }
     })
-})
+});
 /**
  * gets the longitude and latitude of the location that you enter in
  * @param {string} request - gets the value of the location that you enter in 
  * @param {string} response - sends the coordinates of the location that you entered in
  */
 app.post('/getLocation', (request, response) => {
-    place = request.body.location
+    place = request.body.location;
     maps.getAddress(place).then((coordinates) => {
         console.log(coordinates.lat, coordinates.long);
-        response.send(coordinates)
-    })
-})
+        response.send(coordinates);
+    });
+});
 
 /**
  * saves the selected location into the file
@@ -377,22 +377,22 @@ app.post('/storeuserdata', (request, response) => {
     console.log(account);
     fs.writeFileSync('accounts.json', JSON.stringify(account));*/
     checkLocations(logged_in.username, request.body.location).then(res => {
-        addLocations(logged_in.username, request.body.location)
-    }, rej => { console.log('failed') }
-    )
-})
+        addLocations(logged_in.username, request.body.location);
+    }, rej => { console.log('failed'); }
+    );
+});
 /**
  * populates the saved div with all the locations that you have saved to your account
  * @param {string} response - Renders the index2.hbs page with the variable displaySaved which is a list of all your saved locations and displayText that shows the SB based on IP 
  */
 app.post('/favdata', (request, response) => {
-    displaySaved = ''
+    displaySaved = '';
     loadUserdata(logged_in.username).then(res => {
-        displaySaved = ''
-        console.log(saved_loc)
+        displaySaved = '';
+        console.log(saved_loc);
         for (var i = 0; i < saved_loc.length; i++) {
-            console.log(saved_loc[i].location_id)
-            displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`
+            console.log(saved_loc[i].location_id);
+            displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
         }
 
 
@@ -400,9 +400,9 @@ app.post('/favdata', (request, response) => {
             console.log(response1);
             maps.get_sturbuckses(response1.lat, response1.lon).then((response2) => {
                 console.log(response2.list_of_places);
-                displayText = ' '
+                displayText = ' ';
                 for (var i = 0; i < response2.list_of_places.length; i++) {
-                    displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`
+                    displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`;
                 }
                 response.render('index2.hbs', {
                     savedSpots: displaySaved,
@@ -416,13 +416,13 @@ app.post('/favdata', (request, response) => {
             // })
         })
     })
-})
+});
 
 app.get('/404', (request, response) => {
     response.send({
         error: 'Page not found'
     })
-})
+});
 
 
 var server = app.listen(port, () => {
@@ -435,4 +435,4 @@ module.exports = {
     PasswordCheck,
     LoginCheck,
     server
-}
+};
