@@ -170,8 +170,8 @@ var LoginCheck = (request, accs) => {
                 logged_in = accs[i];
                 user_id = i;
                 resolve(0);
-            };
-        };
+            }
+        }
         reject(1);
     });
 
