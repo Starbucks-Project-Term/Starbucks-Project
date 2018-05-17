@@ -376,6 +376,7 @@ app.post('/storeuserdata', (request, response) => {
     }
     console.log(account);
     fs.writeFileSync('accounts.json', JSON.stringify(account));*/
+    last_save = request.body.location;
     checkLocations(logged_in.username, request.body.location).then(res => {
         addLocations(logged_in.username, request.body.location);
     }, rej => { console.log('failed'); }
@@ -394,6 +395,7 @@ app.post('/favdata', (request, response) => {
             console.log(saved_loc[i].location_id);
             displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
         }
+         displaySaved += `<div id=s${saved_loc.length} class="favItems"><a onclick="getMap(${last_save})"> ${last_save}</a></div>`;
 
 
         current_ip.request_coodrs().then((response1) => {
