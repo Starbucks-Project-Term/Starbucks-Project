@@ -2,13 +2,13 @@ const express = require('express');
 const fs = require('fs');
 const bodyParser = require('body-parser');
 const hbs = require('hbs');
-const maps = require('./maps.js')
-const current_ip = require('./get_current_ip.js')
-const credentials = JSON.parse(fs.readFileSync('./credentials.json'))
-const crypto = require('crypto')
+const maps = require('./maps.js');
+const current_ip = require('./get_current_ip.js');
+const credentials = JSON.parse(fs.readFileSync('./credentials.json'));
+const crypto = require('crypto');
 const mysql = require('mysql');
 const nodemailer = require('nodemailer');
-const email = require('./send_email.js')
+const email = require('./send_email.js');
 
 var app = express();
 const port = process.env.PORT || 8080;
@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-var Accs = []
+var Accs = [];
 var place = '';
 var logged_in = ""
 var current_long = ''
@@ -38,13 +38,12 @@ var con = mysql.createConnection({
     database: credentials.database,
     port: credentials.port
 });
-var Accs = []
 
 var send_mail = () => {   
-    options = email.mailOptions
-    options.to = 'viktor.sheverdin@gmail.com'
-    options.subject = 'Test email from Sb app'
-    options.text = 'OK! It actually works!'
+    options = email.mailOptions;
+    options.to = 'viktor.sheverdin@gmail.com';
+    options.subject = 'Test email from Sb app';
+    options.text = 'OK! It actually works!';
     console.log(options);
     email.send_email(options);
 
@@ -69,7 +68,7 @@ var send_mail = () => {
 var LoadAccfile = () => {
     return new Promise(resolve => {
         con.query('SELECT * FROM users', function (err, res, fields) {
-            resolve(Accs = JSON.parse(JSON.stringify(res)))
+            resolve(Accs = JSON.parse(JSON.stringify(res)));
 
         })
     })
@@ -77,25 +76,25 @@ var LoadAccfile = () => {
 
 var loadUserdata = (user) => {
     return new Promise(resolve => {
-        console.log(user)
+        console.log(user);
         con.query("SELECT * from UserData WHERE username = '" + user + "'", function (err, res, fields) {
             //console.log(res)
-            resolve(saved_loc = JSON.parse(JSON.stringify(res)))
+            resolve(saved_loc = JSON.parse(JSON.stringify(res)));
         })
     })
 }
 
 var checkLocations = (user, location) => {
     return new Promise(function (resolve, reject) {
-        console.log("SELECT * from UserData WHERE username ='" + user + "' AND location_id = '" + location + "'")
+        console.log("SELECT * from UserData WHERE username ='" + user + "' AND location_id = '" + location + "'");
         con.query("SELECT * from UserData WHERE username ='" + user + "' AND location_id = '" + location + "'", function (err, res, fields) {
-            var loc = JSON.stringify(res)
-            console.log(loc)
+            var loc = JSON.stringify(res);
+            console.log(loc);
             if (loc == '[]') {
-                resolve()
+                resolve();
             } else {
 
-                reject()
+                reject();
             }
         })
 
@@ -103,7 +102,7 @@ var checkLocations = (user, location) => {
 }
 
 var addLocations = (user, location) => {
-    con.query("INSERT INTO UserData (username, location_id) values ('" + user + "','" + location + "')")
+    con.query("INSERT INTO UserData (username, location_id) values ('" + user + "','" + location + "')");
 }
 
 /**
@@ -116,11 +115,11 @@ var Login = (request, response) => {
     LoadAccfile().then(res => {
         LoginCheck(request, Accs).then(res => {
             loadUserdata(logged_in.username).then(res => {
-                displaySaved = ''
+                displaySaved = '';
                 //console.log(saved_loc)
                 for (var i = 0; i < saved_loc.length; i++) {
                     //console.log(saved_loc[i].location_id)
-                    displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`
+                    displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
                 }
 
 
@@ -128,7 +127,7 @@ var Login = (request, response) => {
                     console.log(response1);
                     maps.get_sturbuckses(response1.lat, response1.lon).then((response2) => {
                         console.log(response2.list_of_places);
-                        displayText = ' '
+                        displayText = ' ';
                         for (var i = 0; i < response2.list_of_places.length; i++) {
                             displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`
                         }
@@ -136,14 +135,14 @@ var Login = (request, response) => {
                             savedSpots: displaySaved,
                             testvar: displayText,
                             coord: `<script>latitude = ${response1.lat}; longitude = ${response1.lon};initMultPlaceMap()</script>`
-                        })
-                    })
+                        });
+                    });
                     // response.render('index2.hbs', {
                     //     savedSpots: displaySaved,
                     //     coord: `<script>latitude = ${response.lat}; longitude = ${response.lon};defMap()</script>`
                     // })
-                })
-            })
+                });
+            });
         },
             rej => {
                 response.render('index.hbs', {
@@ -151,7 +150,7 @@ var Login = (request, response) => {
                 });
             }
         )
-    })
+    });
 }
 
 /**
@@ -165,15 +164,15 @@ var LoginCheck = (request, accs) => {
     return new Promise(function (resolve, reject) {
         for (i = 0; i < accs.length; i++) {
             //console.log(accs[i].username, request.body.username)
-            console.log(accs[i].salt)
+            console.log(accs[i].salt);
             if ((request.body.username == accs[i].username) && (hash_data(request.body.password + accs[i].salt) == accs[i].pass)) {
                 console.log("User pass is ", accs[i].pass);
-                logged_in = accs[i]
-                user_id = i
-                resolve(0)
+                logged_in = accs[i];
+                user_id = i;
+                resolve(0);
             }
         };
-        reject(1)
+        reject(1);
     })
 
 };
@@ -188,14 +187,14 @@ var AddUsr = (request, response) => {
     LoadAccfile().then(res => {
         if (UserNameCheck(request, response, Accs) == 0 && PasswordCheck(request, response) == 0) {
             var salt = generateSalt()
-            hash_password = hash_data(request.body.NewPassword + salt)
+            hash_password = hash_data(request.body.NewPassword + salt);
             var acc = {
                 'user': request.body.NewUser,
                 'pass': hash_password,
             }
             con.query("INSERT INTO users (username, pass, salt) values ('" + acc.user + "','" + acc.pass + "','" + salt + "')", function (err, res, fields) {
-                console.log(err)
-                console.log(salt)
+                console.log(err);
+                console.log(salt);
             })
 
             response.render('index.hbs', {
