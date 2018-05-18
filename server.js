@@ -1,5 +1,3 @@
-/*jshint esversion: 6 */
-
 const express = require('express');
 const fs = require('fs');
 const bodyParser = require('body-parser');
@@ -10,7 +8,7 @@ const credentials = JSON.parse(fs.readFileSync('./credentials.json'));
 const crypto = require('crypto');
 const mysql = require('mysql');
 const nodemailer = require('nodemailer');
-const email = require('./send_email.js')
+const email = require('./send_email.js');
 
 var app = express();
 const port = process.env.PORT || 8080;
@@ -40,16 +38,15 @@ var con = mysql.createConnection({
     database: credentials.database,
     port: credentials.port
 });
-var Accs = [];
 
 /**
  * Takes user's favorites list and Emails it to user
  */
 var send_mail = () => {   
-    options = email.mailOptions
-    options.to = 'viktor.sheverdin@gmail.com'
-    options.subject = 'Test email from Sb app'
-    options.text = 'OK! It actually works!'
+    options = email.mailOptions;
+    options.to = 'viktor.sheverdin@gmail.com';
+    options.subject = 'Test email from Sb app';
+    options.text = 'OK! It actually works!';
     console.log(options);
     email.send_email(options);
 
@@ -61,7 +58,7 @@ var send_mail = () => {
     //         console.log('Email sent: ', info.response);
     //     }
     // });
-}
+};
 
 // transporter.sendMail(mailOptions, function(error, info){
 //   if (error) {
@@ -113,6 +110,7 @@ var checkLocations = (user, location) => {
                 reject();
             }
         });
+
     });
 };
 
@@ -138,7 +136,7 @@ var Login = (request, response) => {
                 //console.log(saved_loc)
                 for (var i = 0; i < saved_loc.length; i++) {
                     //console.log(saved_loc[i].location_id)
-                    displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button <button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
+                    displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
                 }
 
 
@@ -336,6 +334,12 @@ app.post('/starbucksnearme', (request, response) => {
  */
 app.post('/loginsearch', (request, response) => {
     place = request.body.search;
+    if (place == ''){
+        response.render('index2.hbs', {
+            error: 2,
+            coord: `<script>latitude = ${49.2827}; longitude = ${123.1207}; z = ${19};initMultPlaceMap()</script>`
+        });
+    }
     maps.getAddress(place).then((coordinates) => {
         displaySaved = '';
         loadUserdata(logged_in.username).then(res => {
@@ -393,16 +397,17 @@ app.post('/storeuserdata', (request, response) => {
         if (logged_in.user == account[i].user) {
             console.log('push list');
             account[i].saved.push(request.body.location)
-            last_save = request.body.location
+            
+            _save = request.body.location
         }
     }
     console.log(account);
     fs.writeFileSync('accounts.json', JSON.stringify(account));*/
-    last_save = request.body.location
+    last_save = request.body.location;
     checkLocations(logged_in.username, request.body.location).then(res => {
         addLocations(logged_in.username, request.body.location);
-    }, rej => { console.log('failed');
-    });
+    }, rej => { console.log('failed'); }
+    );
 });
 
 /**
@@ -416,9 +421,9 @@ app.post('/favdata', (request, response) => {
         console.log(saved_loc);
         for (var i = 0; i < saved_loc.length; i++) {
             console.log(saved_loc[i].location_id);
-            displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
+            displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
         }
-         displaySaved += `<div id=s${saved_loc.length} class="favItems"><a onclick="getMap(${last_save})"> ${last_save}</a><button id="del${i}" class="delButton" onclick="deleteFav(${saved_loc.length})">x</button></div>`
+         displaySaved += `<div id=s${saved_loc.length} class="favItems"><a onclick="getMap(${last_save})"> ${last_save}</a></div>`;
 
 
         current_ip.request_coodrs().then((response1) => {
