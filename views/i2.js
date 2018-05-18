@@ -10,6 +10,9 @@ var currentSB = "";
 var botMheight = 0;
 var choiceheight = 93;
 
+var forDeletion = []
+var editing = 0
+
 /**
 This functions runs functions "/getLocation" on the server. The server's function will get current location, based on the IP.
 It will initialize the initMap function and pass the cooerdinates as parametrs.
@@ -220,6 +223,42 @@ function errorMessages(number){
         swal('Invalid Location')
     }
 }
+
+function deleteFav(num){
+    if (forDeletion.includes(num)) {
+        forDeletion = forDeletion.filter(i => i !== num);
+        document.getElementById("s"+num).style.backgroundColor = "white";
+    } else {
+        forDeletion.push(num)
+        document.getElementById("s"+num).style.backgroundColor = "pink";
+    }
+    console.log(forDeletion)
+
+}
+
+function editMode() {
+    var count = document.getElementsByClassName("delButton").length;
+    if (editing == 0) {
+        console.log(count)
+        document.getElementById("edit").innerHTML = "Save";
+        for (var i = 0; i < count; i++){
+            document.getElementsByClassName("delButton")[i].style.display = "block";
+        }
+        editing = 1
+    } else {
+        document.getElementById("edit").innerHTML = "Edit";
+        for (var i = 0; i < count; i++){
+            document.getElementsByClassName("delButton")[i].style.display = "none";
+        }
+        for (var i in forDeletion){
+            console.log(i)
+            document.getElementById("s"+i).style.display = "none"
+        }
+        editing = 0
+    }
+
+}
+
 //     document.getElementById("nearme").style.top = '0%';
 //     document.getElementById('savedloc').style.top = '-100%';
 // });
