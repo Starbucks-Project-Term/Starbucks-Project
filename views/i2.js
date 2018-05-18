@@ -233,6 +233,8 @@ function getLocation() {
 function errorMessages(number){
     if (number == 1){
         swal('Invalid Location')
+    } else if (number == 2){
+        swal('Cannot search an empty value')
     }
 }
 
