@@ -216,6 +216,7 @@ var AddUsr = (request, response) => {
             response.render('index.hbs', {
                 username: 0
             });
+            return 'success!'
         }
     });
 };
@@ -418,11 +419,8 @@ app.post('/favdata', (request, response) => {
             console.log(saved_loc[i].location_id);
             displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
         }
-<<<<<<< HEAD
-         displaySaved += `<div id=s${saved_loc.length} class="favItems"><a onclick="getMap(${last_save})"> ${last_save}</a></div>`;
-=======
          displaySaved += `<div id=s${saved_loc.length} class="favItems"><a onclick="getMap(${last_save})"> ${last_save}</a><button id="del${i}" class="delButton" onclick="deleteFav(${saved_loc.length})">x</button></div>`
->>>>>>> 0203b860cd339a4e5ec2ee28e35703682503f1da
+
 
 
         current_ip.request_coodrs().then((response1) => {
@@ -467,5 +465,8 @@ module.exports = {
     server,
     LoadAccfile,
     loadUserdata,
-    checkLocations
+    checkLocations,
+    hash_data,
+    generateSalt,
+    AddUsr
 };
