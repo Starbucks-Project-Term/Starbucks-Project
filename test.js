@@ -136,7 +136,7 @@ describe('checkLocations', () => {
     }) */
 })
 
-describe('send_mail', () => {
+describe.skip('send_mail', () => {
     test('pass', () => {
         expect(testFunc.send_mail()).toBeUndefined()
     })
