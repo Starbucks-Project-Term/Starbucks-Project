@@ -130,7 +130,7 @@ var Login = (request, response) => {
                 //console.log(saved_loc)
                 for (var i = 0; i < saved_loc.length; i++) {
                     //console.log(saved_loc[i].location_id)
-                    displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
+                    displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
                 }
 
 
@@ -348,7 +348,7 @@ app.post('/loginsearch', (request, response) => {
             console.log(saved_loc);
             for (var i = 0; i < saved_loc.length; i++) {
                 console.log(saved_loc[i].location_id);
-                displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
+                displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
             }
         });
         console.log(coordinates);
@@ -417,8 +417,12 @@ app.post('/favdata', (request, response) => {
         console.log(saved_loc);
         for (var i = 0; i < saved_loc.length; i++) {
             console.log(saved_loc[i].location_id);
-            displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
+            displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
         }
+<<<<<<< HEAD
+=======
+         displaySaved += `<div id=s${saved_loc.length} class="favItems"><a onclick="getMap(${last_save})"> ${last_save}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
+>>>>>>> 1e6105c75da777be3f148fd2a407c9d3a3ed7adb
 
         ////////////////////
         
