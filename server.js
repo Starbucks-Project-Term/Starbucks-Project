@@ -401,6 +401,8 @@ app.post('/storeuserdata', (request, response) => {
     }
     console.log(account);
     fs.writeFileSync('accounts.json', JSON.stringify(account));*/
+
+    last_save = request.body.location;
     checkLocations(logged_in.username, request.body.location).then(res => {
         addLocations(logged_in.username, request.body.location);
     }, rej => { console.log('failed'); }
@@ -419,10 +421,6 @@ app.post('/favdata', (request, response) => {
             console.log(saved_loc[i].location_id);
             displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
         }
-<<<<<<< HEAD
-=======
-         displaySaved += `<div id=s${saved_loc.length} class="favItems"><a onclick="getMap(${last_save})"> ${last_save}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
->>>>>>> 1e6105c75da777be3f148fd2a407c9d3a3ed7adb
 
         ////////////////////
         
@@ -432,6 +430,8 @@ app.post('/favdata', (request, response) => {
             var new_text = "This is new test of email."
             send_mail(user_email,new_text);
         });
+        // displaySaved += `<div id=s${saved_loc.length} class="favItems"><a onclick="getMap(${last_save})"> ${last_save}</a></div>`;
+
 
         current_ip.request_coodrs().then((response1) => {
             console.log(response1);
