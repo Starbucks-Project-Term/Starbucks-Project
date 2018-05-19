@@ -73,6 +73,9 @@ var send_mail = (send_to, email_text) => {
 //   }
 // });
 
+/**
+* Connects to database and runs query to get all user accounts
+*/
 var LoadAccfile = () => {
     return new Promise(resolve => {
         con.query('SELECT * FROM users', function(err, res, fields) {
@@ -82,6 +85,10 @@ var LoadAccfile = () => {
     });
 };
 
+/**
+* Connects to database, loads user's favorites list and saves it as a variable
+* @param {string} user - takes the logged in username to select where username is arg user to get list of favorite locations
+*/
 var LoadEmail = (user) => {
     return new Promise(resolve => {
         con.query("SELECT email FROM users WHERE username = '" + user + "'", function (err, res, fields) {
@@ -100,6 +107,11 @@ var loadUserdata = (user) => {
     });
 };
 
+/**
+* Connects to database, checks if location is already saved by the user by Where query
+* @param {string} user - takes the logged in username
+* @param {string} location - Is the location address the user is trying to save
+*/
 var checkLocations = (user, location) => {
     return new Promise(function(resolve, reject) {
         console.log("SELECT * from UserData WHERE username ='" + user + "' AND location_id = '" + location + "'");
@@ -117,6 +129,11 @@ var checkLocations = (user, location) => {
     });
 };
 
+/**
+* Connects to database, adds location to userdata table using location and logged in user
+* @param {string} user - is the logged in user
+* @param {string} location - Is the location address the user is trying to save
+*/
 var addLocations = (user, location) => {
     con.query("INSERT INTO UserData (username, location_id) values ('" + user + "','" + location + "')");
 };
@@ -234,10 +251,17 @@ var AddUsr = (request, response) => {
     });
 };
 
+/**
+* uses the crypto module to hash the data (usually a password)
+* @param {string} data - is the string that is going to be hashed 
+*/
 var hash_data = (data) => {
     return crypto.createHash('md5').update(data).digest('hex');
 };
 
+/**
+* generates a 15 length salt, for password purposes
+*/
 var generateSalt = () => {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -440,10 +464,30 @@ app.post('/favdata', (request, response) => {
         console.log(saved_loc);
         for (var i = 0; i < saved_loc.length; i++) {
             console.log(saved_loc[i].location_id);
-            displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
+            displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
         }
 
-        ////////////////////
+        displaySaved += `<div id=s${saved_loc.length} class="favItems"><a onclick="getMap(${last_save})"> ${last_save}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
++
++        
++        LoadEmail(logged_in.username).then(email_res => {
++            console.log("Res from database",email_res[0].email);
++            var user_email = email_res[0].email;
++            var new_text = "This is new test of email."
++            send_mail(user_email,new_text);
++        });
+ 
+         current_ip.request_coodrs().then((response1) => {
+             console.log(response1);
+@@ -470,7 +487,6 @@ var server = app.listen(port, () => {
+ 
+ 
+ module.exports = {
+-    send_mail,
+     UserNameCheck,
+     PasswordCheck,
+     LoginCheck,
+
         
         LoadEmail(logged_in.username).then(email_res => {
             console.log("Res from database",email_res[0].email);
