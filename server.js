@@ -9,6 +9,8 @@ const crypto = require('crypto');
 const mysql = require('mysql');
 const nodemailer = require('nodemailer');
 const email = require('./send_email.js');
+// const EmailTemp = require('email-templates');
+// const email_temp = new EmailTemp();
 
 var app = express();
 const port = process.env.PORT || 8080;
@@ -26,6 +28,7 @@ var current_long = '';
 var current_lat = '';
 var last_save = "";
 var user_id = '';
+var user_email = '';
 var saved_loc;
 /**
  * Calls the function ReadAccfile and returns the list into the variable Accs
@@ -39,11 +42,11 @@ var con = mysql.createConnection({
     port: credentials.port
 });
 
-var send_mail = () => {   
+var send_mail = (send_to, email_text) => {   
     options = email.mailOptions;
-    options.to = 'viktor.sheverdin@gmail.com';
+    options.to = send_to;
     options.subject = 'Test email from Sb app';
-    options.text = 'OK! It actually works!';
+    options.text = email_text;
     console.log(options);
     email.send_email(options);
 
@@ -73,6 +76,14 @@ var LoadAccfile = () => {
         });
     });
 };
+
+var LoadEmail = (user) => {
+    return new Promise(resolve => {
+        con.query("SELECT email FROM users WHERE username = '" + user + "'", function (err, res, fields) {
+            resolve(user_email = JSON.parse(JSON.stringify(res)));
+        })
+    })
+}
 
 var loadUserdata = (user) => {
     return new Promise(resolve => {
@@ -169,6 +180,7 @@ var LoginCheck = (request, accs) => {
                 console.log("User pass is ", accs[i].pass);
                 logged_in = accs[i];
                 user_id = i;
+                //user_email = request.body.
                 resolve(0);
             }
         }
@@ -176,6 +188,17 @@ var LoginCheck = (request, accs) => {
     });
 
 };
+
+var EmailCheck = (request,response) => {
+    if (request.body.UserEmail.length != 0){
+        return 0;
+    }
+    else {
+        return 1;
+    }
+    
+};
+
 
 /**
  * Adds a user to the file and Acc list variable if UserNameCheck and PasswordCheck returns 0.
@@ -185,16 +208,18 @@ var LoginCheck = (request, accs) => {
 
 var AddUsr = (request, response) => {
     LoadAccfile().then(res => {
-        if (UserNameCheck(request, response, Accs) == 0 && PasswordCheck(request, response) == 0) {
+        if (UserNameCheck(request, response, Accs) == 0 && PasswordCheck(request, response) == 0 && EmailCheck(request, response) == 0) {
             var salt = generateSalt();
             hash_password = hash_data(request.body.NewPassword + salt);
             var acc = {
                 'user': request.body.NewUser,
                 'pass': hash_password,
+                'email': request.body.UserEmail
             };
-            con.query("INSERT INTO users (username, pass, salt) values ('" + acc.user + "','" + acc.pass + "','" + salt + "')", function (err, res, fields) {
+            con.query("INSERT INTO users (username, pass, salt, email) values ('" + acc.user + "','" + acc.pass + "','" + salt + "','" + acc.email + "')", function (err, res, fields) {
                 console.log(err);
                 console.log(salt);
+                console.log(request.body.UserEmail);
             });
 
             response.render('index.hbs', {
@@ -395,6 +420,14 @@ app.post('/favdata', (request, response) => {
             displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
         }
 
+        ////////////////////
+        
+        LoadEmail(logged_in.username).then(email_res => {
+            console.log("Res from database",email_res[0].email);
+            var user_email = email_res[0].email;
+            var new_text = "This is new test of email."
+            send_mail(user_email,new_text);
+        });
 
         current_ip.request_coodrs().then((response1) => {
             console.log(response1);
