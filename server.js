@@ -247,6 +247,7 @@ var AddUsr = (request, response) => {
             response.render('index.hbs', {
                 username: 0
             });
+            return 'success!'
         }
     });
 };
@@ -496,6 +497,7 @@ app.post('/favdata', (request, response) => {
             send_mail(user_email,new_text);
         });
 
+
         current_ip.request_coodrs().then((response1) => {
             console.log(response1);
             maps.get_sturbuckses(response1.lat, response1.lon).then((response2) => {
@@ -537,6 +539,9 @@ module.exports = {
     server,
     LoadAccfile,
     loadUserdata,
-    checkLocations
+    checkLocations,
+    hash_data,
+    generateSalt,
+    AddUsr
 };
 
