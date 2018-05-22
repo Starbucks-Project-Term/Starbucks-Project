@@ -182,11 +182,11 @@ describe('checkLocations', () => {
 })
 
 
-describe.skip('send_mail', () => {
-    test('pass', () => {
-        expect(testFunc.send_mail()).toBeUndefined()
-    })
-})
+// describe.skip('send_mail', () => {
+//     test('pass', () => {
+//         expect(testFunc.send_mail()).toBeUndefined()
+//     })
+// })
 
 
 describe('hash_data', () => {
