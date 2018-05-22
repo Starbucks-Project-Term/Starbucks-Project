@@ -52,7 +52,7 @@ var con = mysql.createConnection({
 var send_mail = (send_to, email_text) => {   
     options = email.mailOptions;
     options.to = send_to;
-    options.subject = 'Test email from Sb app';
+    options.subject = 'Test email from Sb app';f
     options.text = email_text;
     console.log(options);
     email.send_email(options);
@@ -474,7 +474,6 @@ app.post('/getLocation', (request, response) => {
  * @param {string} request - grabs the location that you have clicked on
  */
 app.post('/storeuserdata', (request, response) => {
-
     last_save = request.body.location;
     checkLocations(logged_in.username, request.body.location).then(res => {
         last_save = request.body.location;
