@@ -496,15 +496,6 @@ app.post('/send_via_mail', (request, response) => {
 });
 
 app.post('/favdata', (request, response) => {
-    LoadEmail(logged_in.username).then(email_res => {
-        console.log("Res from database",email_res[0].email);
-        var user_email = email_res[0].email;
-        var new_text = "This is new test of email."
-        send_mail(user_email,new_text);
-    });
-});
-
-app.post('/favdata', (request, response) => {
     displaySaved = '';
     loadUserdata(logged_in.username).then(res => {
         displaySaved = '';
