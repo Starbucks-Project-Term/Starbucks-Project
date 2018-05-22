@@ -372,10 +372,6 @@ app.post('/loginsearch', (request, response) => {
         loadUserdata(logged_in.username).then(res => {
             displaySaved = '';
             for (var i = 0; i < saved_loc.length; i++) {
-<<<<<<< HEAD
-                console.log(saved_loc[i].location_id);
-=======
->>>>>>> adbf3910a6a82273639ccc40867b2bf7cb3e086a
                 displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
             }
         });
@@ -441,25 +437,6 @@ app.post('/favdata', (request, response) => {
         displaySaved = '';
         for (var i = 0; i < saved_loc.length; i++) {
             console.log(saved_loc[i].location_id);
-<<<<<<< HEAD
-            displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
-        }
-         displaySaved += `<div id=s${saved_loc.length} class="favItems"><a onclick="getMap(${last_save})"> ${last_save}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
-
-
-        current_ip.request_coodrs().then((response1) => {
-            console.log(response1);
-            maps.get_sturbuckses(response1.lat, response1.lon).then((response2) => {
-                console.log(response2.list_of_places);
-                displayText = ' ';
-                for (var i = 0; i < response2.list_of_places.length; i++) {
-                    displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`;
-                }
-                response.render('index2.hbs', {
-                    savedSpots: displaySaved,
-                    testvar: displayText,
-                    coord: `<script>latitude = ${response1.lat}; longitude = ${response1.lon};initMultPlaceMap()</script>`
-=======
             displaySaved += `<div id=s${i} class="favItems"><a href="#" onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
         }
         if(last_save != ""){
@@ -484,7 +461,6 @@ app.post('/favdata', (request, response) => {
                         testvar: displayText,
                         coord: `<script>latitude = ${response1.lat}; longitude = ${response1.lon};initMultPlaceMap()</script>`
                     });
->>>>>>> adbf3910a6a82273639ccc40867b2bf7cb3e086a
                 });
             });
         });
