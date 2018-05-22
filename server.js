@@ -550,6 +550,7 @@ module.exports = {
     LoadEmail,
     addLocations,
     Login,
-    EmailCheck
+    EmailCheck,
+    delFavourites
 };
 

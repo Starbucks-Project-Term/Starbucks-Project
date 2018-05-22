@@ -93,6 +93,12 @@ var bodyEmail = {
     }
 }
 
+var fakeUser = {
+    body: {
+        username: 'user'
+    }
+}
+
 describe('login', () => {
     test("pass", () => {
         return testFunc.LoginCheck(success, Accs).then(e => {
@@ -278,6 +284,16 @@ describe('EmailCheck', () => {
     })
 })
 
+
+/*FIX ME
+Why is this triggering an error in the LoginCheck function?*/
+describe('delFavourites', () => {
+    test('Delete favourites', () => {
+        return testFunc.delFavourites().then(i => {
+            expect(i).toBeUndefined()
+        })
+    })
+})
 
 
 testFunc.server.close();
