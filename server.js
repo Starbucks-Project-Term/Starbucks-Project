@@ -9,6 +9,8 @@ const crypto = require('crypto');
 const mysql = require('mysql');
 const nodemailer = require('nodemailer');
 const email = require('./send_email.js');
+// const EmailTemp = require('email-templates');
+// const email_temp = new EmailTemp();
 
 var app = express();
 const port = process.env.PORT || 8080;
@@ -26,11 +28,12 @@ var current_long = '';
 var current_lat = '';
 var last_save = "";
 var user_id = '';
+var user_email = '';
 var saved_loc;
-
 /**
  * Calls the function ReadAccfile and returns the list into the variable Accs
  */
+
 var con = mysql.createConnection({
     host: credentials.host,
     user: credentials.user,
@@ -39,17 +42,19 @@ var con = mysql.createConnection({
     port: credentials.port
 });
 
+
 /**
  * Takes user's favorites list and Emails it to user
  */
-var send_mail = () => {   
+
+
+var send_mail = (send_to, email_text) => {   
     options = email.mailOptions;
-    options.to = 'viktor.sheverdin@gmail.com';
+    options.to = send_to;
     options.subject = 'Test email from Sb app';
-    options.text = 'OK! It actually works!';
+    options.text = email_text;
     console.log(options);
     email.send_email(options);
-
     // email.transporter.sendEmail(options, (error,info) => {
     //     if (error) {
     //         console.log(error);
@@ -69,44 +74,51 @@ var send_mail = () => {
 // });
 
 /**
- * Connects to database and runs query to get all user accounts
- */
+* Connects to database and runs query to get all user accounts
+*/
 var LoadAccfile = () => {
     return new Promise(resolve => {
-        con.query('SELECT * FROM users', function (err, res, fields) {
+        con.query('SELECT * FROM users', function(err, res, fields) {
             resolve(Accs = JSON.parse(JSON.stringify(res)));
+
         });
     });
 };
 
 /**
- * Connects to database, loads user's favorites list and saves it as a variable
- * @param {string} user - takes the logged in username to select where username is arg user to get list of favorite locations
- */
+* Connects to database, loads user's favorites list and saves it as a variable
+* @param {string} user - takes the logged in username to select where username is arg user to get list of favorite locations
+*/
+var LoadEmail = (user) => {
+    return new Promise(resolve => {
+        con.query("SELECT email FROM users WHERE username = '" + user + "'", function (err, res, fields) {
+
+            resolve(user_email = JSON.parse(JSON.stringify(res)));
+        })
+    })
+}
+
 var loadUserdata = (user) => {
     return new Promise(resolve => {
-        console.log(user);
-        con.query("SELECT * from UserData WHERE username = '" + user + "'", function (err, res, fields) {
-            //console.log(res)
+        con.query("SELECT * from UserData WHERE username = '" + user + "'", function(err, res, fields) {
             resolve(saved_loc = JSON.parse(JSON.stringify(res)));
         });
     });
 };
 
 /**
- * Connects to database, checks if location is already saved by the user by Where query
- * @param {string} user - takes the logged in username
- * @param {string} location - Is the location address the user is trying to save
- */
+* Connects to database, checks if location is already saved by the user by Where query
+* @param {string} user - takes the logged in username
+* @param {string} location - Is the location address the user is trying to save
+*/
 var checkLocations = (user, location) => {
-    return new Promise(function (resolve, reject) {
-        console.log("SELECT * from UserData WHERE username ='" + user + "' AND location_id = '" + location + "'");
-        con.query("SELECT * from UserData WHERE username ='" + user + "' AND location_id = '" + location + "'", function (err, res, fields) {
+    return new Promise(function(resolve, reject) {
+        con.query("SELECT * from UserData WHERE username ='" + user + "' AND location_id = '" + location + "'", function(err, res, fields) {
             var loc = JSON.stringify(res);
-            console.log(loc);
             if (loc == '[]') {
                 resolve();
             } else {
+
                 reject();
             }
         });
@@ -115,10 +127,10 @@ var checkLocations = (user, location) => {
 };
 
 /**
- * Connects to database, adds location to userdata table using location and logged in user
- * @param {string} user - is the logged in user
- * @param {string} location - Is the location address the user is trying to save
- */
+* Connects to database, adds location to userdata table using location and logged in user
+* @param {string} user - is the logged in user
+* @param {string} location - Is the location address the user is trying to save
+*/
 var addLocations = (user, location) => {
     con.query("INSERT INTO UserData (username, location_id) values ('" + user + "','" + location + "')");
 };
@@ -128,22 +140,18 @@ var addLocations = (user, location) => {
  * @param {string} request - Grabs the username and password values from the form lin loginbox
  * @param {string} response - Renders index2.hbs or error1.hbs
  */
+
 var Login = (request, response) => {
     LoadAccfile().then(res => {
         LoginCheck(request, Accs).then(res => {
             loadUserdata(logged_in.username).then(res => {
                 displaySaved = '';
-                //console.log(saved_loc)
                 for (var i = 0; i < saved_loc.length; i++) {
-                    //console.log(saved_loc[i].location_id)
-                    displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
+                    displaySaved += `<div id=s${i} class="favItems"><a href="#" onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
                 }
 
-
                 current_ip.request_coodrs().then((response1) => {
-                    console.log(response1);
                     maps.get_sturbuckses(response1.lat, response1.lon).then((response2) => {
-                        console.log(response2.list_of_places);
                         displayText = ' ';
                         for (var i = 0; i < response2.list_of_places.length; i++) {
                             displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`;
@@ -153,20 +161,20 @@ var Login = (request, response) => {
                             testvar: displayText,
                             coord: `<script>latitude = ${response1.lat}; longitude = ${response1.lon};initMultPlaceMap()</script>`
                         });
+                        // response.render('index2.hbs', {
+                        //     savedSpots: displaySaved,
+                        //     coord: `<script>latitude = ${response.lat}; longitude = ${response.lon};defMap()</script>`
+                        // })
                     });
-                    // response.render('index2.hbs', {
-                    //     savedSpots: displaySaved,
-                    //     coord: `<script>latitude = ${response.lat}; longitude = ${response.lon};defMap()</script>`
-                    // })
                 });
-            });
-        },
+            },
             rej => {
                 response.render('index.hbs', {
                     username: 3
                 });
             }
         );
+    });
     });
 };
 
@@ -175,15 +183,16 @@ var Login = (request, response) => {
  * @param {string} request - Grabs the username and password values from the form
  * @param {string} accs - The list object passed in from Login fucntion
  */
+
+
 var LoginCheck = (request, accs) => {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
         for (i = 0; i < accs.length; i++) {
             //console.log(accs[i].username, request.body.username)
-            console.log(accs[i].salt);
             if ((request.body.username == accs[i].username) && (hash_data(request.body.password + accs[i].salt) == accs[i].pass)) {
-                console.log("User pass is ", accs[i].pass);
                 logged_in = accs[i];
                 user_id = i;
+                //user_email = request.body.
                 resolve(0);
             }
         }
@@ -192,46 +201,60 @@ var LoginCheck = (request, accs) => {
 
 };
 
+var EmailCheck = (request,response) => {
+    if (request.body.UserEmail.length != 0){
+        return 0;
+    }
+    else {
+        return 1;
+    }
+    
+};
+
+
 /**
  * Adds a user to the file and Acc list variable if UserNameCheck and PasswordCheck returns 0.
  * @param {string} request - Grabs the username, password and confirm password values from the form createacc 
  * @param {string} response - renders origional login page 
  */
+
 var AddUsr = (request, response) => {
     LoadAccfile().then(res => {
-        if (UserNameCheck(request, response, Accs) == 0 && PasswordCheck(request, response) == 0) {
+        if (UserNameCheck(request, response, Accs) == 0 && PasswordCheck(request, response) == 0 && EmailCheck(request, response) == 0) {
             var salt = generateSalt();
             hash_password = hash_data(request.body.NewPassword + salt);
             var acc = {
                 'user': request.body.NewUser,
                 'pass': hash_password,
+                'email': request.body.UserEmail
             };
-            con.query("INSERT INTO users (username, pass, salt) values ('" + acc.user + "','" + acc.pass + "','" + salt + "')", function (err, res, fields) {
-                console.log(err);
-                console.log(salt);
+            con.query("INSERT INTO users (username, pass, salt, email) values ('" + acc.user + "','" + acc.pass + "','" + salt + "','" + acc.email + "')", function (err, res, fields) {
+                console.log(request.body.UserEmail);
             });
 
             response.render('index.hbs', {
                 username: 0
             });
+            return 'success!'
         }
     });
 };
 
 /**
- * uses the crypto module to hash the data (usually a password)
- * @param {string} data - is the string that is going to be hashed 
- */
+* uses the crypto module to hash the data (usually a password)
+* @param {string} data - is the string that is going to be hashed 
+*/
 var hash_data = (data) => {
     return crypto.createHash('md5').update(data).digest('hex');
 };
 
 /**
- * generates a 15 length salt, for password purposes
- */
+* generates a 15 length salt, for password purposes
+*/
 var generateSalt = () => {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
     for (var i = 0; i < 16; i++) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
@@ -243,6 +266,7 @@ var generateSalt = () => {
  * @param {string} request - Grabs the new username
  * @param {string} response - renders errorpage
  */
+
 var UserNameCheck = (request, response, Accs) => {
     if (request.body.NewUser.match(/^[a-z0-9]+$/i)) {
         if (request.body.NewUser.length <= 12 && request.body.NewUser.length >= 3) {
@@ -274,6 +298,7 @@ var UserNameCheck = (request, response, Accs) => {
  * @param {string} request - Grabs the password and confirm password
  * @param {string} response - renders errorpage 
  */
+
 var PasswordCheck = (request, response) => {
     if (request.body.NewPassword.length >= 5 && request.body.confirmp.length >= 5) {
         if (request.body.NewPassword != request.body.confirmp) {
@@ -321,8 +346,7 @@ app.post('/home', (request, response) => {
 app.post('/starbucksnearme', (request, response) => {
     longitude = request.body.longitude;
     latitude = request.body.latitude;
-    maps.get_sturbuckses(latitude, longitude).then((response1) => {
-    });
+    maps.get_sturbuckses(latitude, longitude).then((response1) => {});
 });
 
 
@@ -337,24 +361,27 @@ app.post('/loginsearch', (request, response) => {
     if (place == ''){
         response.render('index2.hbs', {
             error: 2,
+            savedSpots: displaySaved,
+            testvar: displayText,
             coord: `<script>latitude = ${49.2827}; longitude = ${123.1207}; z = ${19};initMultPlaceMap()</script>`
         });
     }
+
     maps.getAddress(place).then((coordinates) => {
         displaySaved = '';
         loadUserdata(logged_in.username).then(res => {
             displaySaved = '';
-            console.log(saved_loc);
             for (var i = 0; i < saved_loc.length; i++) {
+<<<<<<< HEAD
                 console.log(saved_loc[i].location_id);
+=======
+>>>>>>> adbf3910a6a82273639ccc40867b2bf7cb3e086a
                 displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
             }
         });
-        console.log(coordinates);
         displayText = ' ';
         if (coordinates.lat && coordinates.long) {
             maps.get_sturbuckses(coordinates.lat, coordinates.long).then((response1) => {
-                console.log(response1.list_of_places);
                 for (var i = 0; i < response1.list_of_places.length; i++) {
                     displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response1.list_of_places[i]}\'); currentSB=\'${response1.list_of_places[i]}\'"> ${response1.list_of_places[i]}</a></div>`;
                 }
@@ -365,15 +392,20 @@ app.post('/loginsearch', (request, response) => {
                 });
             });
         } else {
+                displaySaved = '';
+        loadUserdata(logged_in.username).then(res => {
+            for (var i = 0; i < saved_loc.length; i++) {
+                displaySaved += `<div id=s${i} class="favItems"><a href="#" onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a></div>`;
+            }
             response.render('index2.hbs', {
                 error: 1,
-                coord: `<script>latitude = ${49.2827}; longitude = ${123.1207}; z = ${19};initMultPlaceMap()</script>`
+                coord:`<script>latitude = ${49.2827}; longitude = ${123.1207}; z = ${19};initMultPlaceMap()</script>`,
+                savedSpots: displaySaved
             });
-
+        });
         }
     });
 });
-
 /**
  * gets the longitude and latitude of the location that you enter in
  * @param {string} request - gets the value of the location that you enter in 
@@ -382,31 +414,20 @@ app.post('/loginsearch', (request, response) => {
 app.post('/getLocation', (request, response) => {
     place = request.body.location;
     maps.getAddress(place).then((coordinates) => {
-        console.log(coordinates.lat, coordinates.long);
         response.send(coordinates);
     });
 });
 
 /**
- * calls checklocations to see if location is already saved, if no, adds to database. will render error if fail
+ * saves the selected location into the file
  * @param {string} request - grabs the location that you have clicked on
  */
 app.post('/storeuserdata', (request, response) => {
-    /*let account = JSON.parse(fs.readFileSync('accounts.json'));
-    for (var i = 0; i < account.length; i++) {
-        if (logged_in.user == account[i].user) {
-            console.log('push list');
-            account[i].saved.push(request.body.location)
-            
-            _save = request.body.location
-        }
-    }
-    console.log(account);
-    fs.writeFileSync('accounts.json', JSON.stringify(account));*/
     last_save = request.body.location;
     checkLocations(logged_in.username, request.body.location).then(res => {
+        last_save = request.body.location;
         addLocations(logged_in.username, request.body.location);
-    }, rej => { console.log('failed'); }
+    }, rej => { response.send("exists"); }
     );
 });
 
@@ -418,9 +439,9 @@ app.post('/favdata', (request, response) => {
     displaySaved = '';
     loadUserdata(logged_in.username).then(res => {
         displaySaved = '';
-        console.log(saved_loc);
         for (var i = 0; i < saved_loc.length; i++) {
             console.log(saved_loc[i].location_id);
+<<<<<<< HEAD
             displaySaved += `<div id=s${i} class="favItems"><a onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
         }
          displaySaved += `<div id=s${saved_loc.length} class="favItems"><a onclick="getMap(${last_save})"> ${last_save}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
@@ -438,15 +459,37 @@ app.post('/favdata', (request, response) => {
                     savedSpots: displaySaved,
                     testvar: displayText,
                     coord: `<script>latitude = ${response1.lat}; longitude = ${response1.lon};initMultPlaceMap()</script>`
+=======
+            displaySaved += `<div id=s${i} class="favItems"><a href="#" onclick="getMap(${saved_loc[i].location_id})"> ${saved_loc[i].location_id}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
+        }
+        if(last_save != ""){
+            displaySaved += `<div id=s${saved_loc.length} class="favItems"><a href="#" onclick="getMap(${last_save})"> ${last_save}</a><button id="del${i}" class="delButton" onclick="deleteFav(${i})">x</button></div>`;
+        }
+       
+        // LoadEmail(logged_in.username).then(email_res => {
+        //     console.log("Res from database",email_res[0].email);
+        //    var user_email = email_res[0].email;
+        //    var new_text = "This is new test of email."
+        //   send_mail(user_email,new_text);
+        // });
+
+            current_ip.request_coodrs().then((response1) => {
+                maps.get_sturbuckses(response1.lat, response1.lon).then((response2) => {
+                    displayText = ' ';
+                    for (var i = 0; i < response2.list_of_places.length; i++) {
+                        displayText += `<div id=d${i} class='favItems'><a href="#" onclick="getMap(\'${response2.list_of_places[i]}\'); currentSB=\'${response2.list_of_places[i]}\'"> ${response2.list_of_places[i]}</a></div>`;
+                    }
+                    response.render('index2.hbs', {
+                        savedSpots: displaySaved,
+                        testvar: displayText,
+                        coord: `<script>latitude = ${response1.lat}; longitude = ${response1.lon};initMultPlaceMap()</script>`
+                    });
+>>>>>>> adbf3910a6a82273639ccc40867b2bf7cb3e086a
                 });
             });
-            // response.render('index2.hbs', {
-            //     savedSpots: displaySaved,
-            //     coord: `<script>latitude = ${response.lat}; longitude = ${response.lon};defMap()</script>`
-            // })
         });
-    });
-});
+})
+
 
 app.get('/404', (request, response) => {
     response.send({
@@ -461,13 +504,15 @@ var server = app.listen(port, () => {
 
 
 module.exports = {
-    send_mail,
     UserNameCheck,
     PasswordCheck,
     LoginCheck,
     server,
     LoadAccfile,
     loadUserdata,
-    checkLocations
-
+    checkLocations,
+    hash_data,
+    generateSalt,
+    AddUsr
 };
+
